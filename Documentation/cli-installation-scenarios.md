@@ -32,27 +32,27 @@ This document/spec outlines the CLI install experience. This covers the technolo
 - All installers are signed properly 
 - Upgrades using the native installers Just Work(tm)
 - All user facing materials point to the getting started page
-- The user needs extra effort to install the "bleeding edge" bits
+- The user needs extra effort to install the nightly bits
 - Only HTTPS links are allowed in any online property 
 
 # Channels
-Channels represent a way for users who are getting the bits to reason about the stability and quality of the bits they are getting. Each channel has, potentially, a different 
+Channels represent a way for users who are getting the CLI to reason about the stability and quality of the bits they are getting. This is one more way for the user to be fully aware of the state the bits that are being installed are in and to set proper expectations on first use. 
 
 The table below outlines the channels:
 
 | Property         	| Description                                                                                                                                                                                                                                                       	|
 |------------------	|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| Dev              	| Unstable bits that are "bleeding edge". Users are nto expected to us this channel often, however it is there for those situations when someone needs a feature or maybe a new bug fix urgently that hasn't been stabilizied yet. Also, used for internal testing. 	|
+| Dev              	| Unstable bits that are "bleeding edge". Users are not expected to use this channel often, however it is there for those situations when someone needs/wants a feature that hasn't been stabilizied yet. Also, used for internal testing. 	|
 | Beta/Pre-release 	| Pre-release stable builds with known issues and/or known feature gaps. We are OK with users installing these for preview purposes.                                                                                                                                	|
 | Release          	| Actual releases. Most users are encouraged to install these.                                                                                                                                                                                                      	|
 Channels also impact the NuGet packages. Based on the version of the package specified, the user may end up getting different channels. This is described in more details in [Nuget Packages section](#nuget-packages).  
 
 # Dependencies
-.NET Core CLI is built on top of CoreFX and CoreCLR and as such its' dependencies set is defined by the platform that those two combine. Some of the install options provide an automatic way to install these dependencies, while other do not. However, it is important to note that the CLI bundle will **not carry those dependencies with it** in any case. This means that for those install options that do not support automatic 
+.NET Core CLI is built on top of CoreFX and CoreCLR and as such its' dependencies set is defined by the platform that those two combine. Whether or not those dependencies will be installed depends on the installer being used. On Debian, for instance, using `apt-get` will mean that the appropriate dependencies are installed. For OS X using the PKG (installer) dependencies that are not part of OS X will not be installed. So, to summarize: the CLI bundle will not carry native dependencies of CoreFX and CoreCLR with it. 
 
-A list of dependencies can be found on [](). 
+A list of dependencies can be found on [dependency list](TBD). 
 
-# Upgrades
+# Upgrades and updates
 **TODO**
 
 # Layout on disk
@@ -70,17 +70,13 @@ There are two more planned vectors:
 2. VS Code 
 
 ## Getting Started page
-The page can be found on https://aka.ms/dotnetcoregs. This is the main curated first-run experience for the dotnet CLI. The intent of the page is to help users "kick the tires" quickly and become familiar with what the platform offers. This should be the most stable and curated experience we can offer. Getting started page can never point to unstable builds.
+The page can be found on https://aka.ms/dotnetcoregs.This is the main curated first-run experience for the dotnet CLI. The intent of the page is to help users "kick the tires" quickly and become familiar with what the platform offers. This should be the most stable and curated experience we can offer. The Getting Started page should only point users to curated install experiences that can contain only stable or LKG bits. 
+ 
 
 The below table shows the pertinent information for installs on the "Getting started" page. 
-
-The Getting Started page should only point users to curated install experiences that can contain only stable or LKG bits. 
  
 | Property              	| Description                                                  	|
 |-----------------------	|--------------------------------------------------------------	|
-| Installer type          	| Native installers; scripts for curl installs              	|
-| Source branch         	| rel/1.0.0                                                    	|
-| Build to install         	| Last Known Good (LKG) **or** latest green build of rel/1.0.0 	|
 | Debian feed           	| Development                                                  	|
 | Local install scripts 	| Latest from rel/1.0.0                                        	|
 
