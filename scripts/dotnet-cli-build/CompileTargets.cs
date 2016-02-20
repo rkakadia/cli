@@ -41,7 +41,8 @@ namespace Microsoft.DotNet.Cli.Build
             "Microsoft.DotNet.ProjectModel.Loader",
             "Microsoft.DotNet.ProjectModel.Workspaces",
             "Microsoft.Extensions.DependencyModel",
-            "Microsoft.Extensions.Testing.Abstractions"
+            "Microsoft.Extensions.Testing.Abstractions",
+            "dotnet-compile-native"
         };
 
         [Target(nameof(PrepareTargets.Init), nameof(CompileCoreHost), nameof(CompileStage1), nameof(CompileStage2))]
