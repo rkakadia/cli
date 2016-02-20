@@ -45,21 +45,15 @@ The table below outlines the channels:
 | Nightly              	| Unstable bits that are "bleeding edge". Users are not expected to use this channel often, however it is there for those situations when someone needs/wants a feature that hasn't been stabilizied yet. Also, used for internal testing. 	|
 | Preview 	| Pre-release stable builds with known issues and/or known feature gaps. We are OK with users installing these for preview purposes.                                                                                                                                	|
 | Production          	| Actual releases. Most users are encouraged to install these.                                                                                                                                                                                                      	|
-Below table shows the mapping between the channels, branches and feeds for the Debian pacakage.
 
-| Channel    	| Branch    	| Debian feed 	| Debian package name 	|
-|------------	|-----------	|-------------	|---------------------	|
-| Nightly    	| master    	| Development 	| dotnet-nightly      	|
-| Preview    	| rel/<ver> 	| Development 	| dotnet              	|
-| Production 	| rel/<ver> 	| Production  	| dotnet              	|
+Below table shows the mapping between the channels, branches and feeds for the Debian pacakage. Since channels also impact the NuGet packages, it also contains the version of the package used and the feed to opt in to each channel.
 
-Channels also impact the NuGet packages. Based on the version of the package specified, the user may end up getting different channels. The table below shows examples of that.
+| Channel    	| Branch    	| Debian feed 	| Debian package name 	| NuGet version 	| NuGet feed                            	|
+|------------	|-----------	|-------------	|---------------------	|---------------	|---------------------------------------	|
+| Nightly    	| master    	| Development 	| dotnet-nightly      	| 1.0.0-dev-*   	| https://dotnet.myget.org/f/dotnet-cli 	|
+| Preview    	| rel/<ver> 	| Development 	| dotnet              	| 1.0.0-beta-*  	| https://dotnet.myget.org/f/dotnet-cli 	|
+| Production 	| production/<ver> 	| Production  	| dotnet              	| 1.0.0         	| https://api.nuget.org/v3/index.json   	|
 
-| NuGet package version 	| Channel            	|
-|-----------------------	|--------------------	|
-| 1.0.0-dev-*           	| Dev channel        	|
-| 1.0.0-beta-*          	| Preview channel    	|
-| 1.0.0                 	| Production channel 	|
 
 # Funnels and discovery mechanisms for CLI bits
 There are multiple ways that we will funnel users towards the installers for the CLI:
@@ -107,7 +101,6 @@ There are multiple acquisition modes that the CLI will have:
 
 1. Native installers
 2. Install scripts
-3. ZIP/Tarball installs (manual)
 3. NuGet packages (for use in other people's commands/code)
 4. Docker
 
@@ -118,13 +111,13 @@ These installation experiences are the primary way new users are getting the bit
 
 The native installers are:
 
-| Platform            	| Installer        	| Description                                                                                                                                                                                                                                        	|
-|---------------------	|------------------	|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
-| Windows             	| Bundle installer 	| Windows native installation technology is what we use to install stuff.                                                                                                                                                                            	|
-| Ubuntu 14.04/Debian 	| apt-get feed     	| We provide the Debian package on a hosted feed. This means that the users need to add the feed, add keys and then use apt-get to install the CLI tools.                                                                                            	|
-| OS X                	| PKG              	| PKGs are files that installer(1) on OS X uses to install software. One big drawback is that we cannot bundle depencencies for CoreCLR and CoreFX within this installation method, unless those dependencies are available in binary form already.  	|
-| OS X                	| Homebrew         	| Though not really "native" as in "available OOB on the system", homebrew has risen as a *de facto* package manager for OS X.                                                                                                                       	|
-| CentOS/RH           	| RPM              	| Though it currently doesn't exist, we should look into enabling RPMs for CentOS/RH-based distributions. This would bring it to par with Debian ones.                                                                                               	|
+| Platform            	| Installer        	| Status   	| Package name       	|
+|---------------------	|------------------	|----------	|--------------------	|
+| Windows             	| Bundle installer 	| Done     	| dotnet             	|
+| Ubuntu 14.04/Debian 	| apt-get feed     	| Done     	| dotnet; dotnet-dbg 	|
+| OS X                	| PKG              	| Done     	| dotnet             	|
+| OS X                	| Homebrew         	| Not done 	| dotnet             	|
+| CentOS/RH           	| RPM              	| Not done 	| dotnet             	|
 
 
 ## Installation script
@@ -141,6 +134,7 @@ The features the script needs to support/have are:
 * Support for specifying the version
 * Support for specfying the installation location
 * Support specifying whether the debug package needs to be downloaded
+* Automatically add the install to $PATH unless --no-path/-NoPath is present
 
 
 ### Local installation
@@ -155,17 +149,13 @@ The guidance is, of course, to always use the beta channel for the script, and t
 ### Installation script features
 The following arguments are needed for the installation script:
 
->--channel / -Channel
->Which channel (i.e. "nightly", "preview", "production") to install from; defaults to beta if not present. 
-
->--version / -Version
->Which version of CLI to install; you need to specify the version as 3-part version (i.e. 1.0.0-13232323); defaults to latest if not present. 
-
->--prefix / -InstallDir
->Path to where to install the CLI bundle; defaults to /.dotnet if not present. The dir is not created if it doesn't exist. 
-
->--debug / -Debug
->Download the "fat package" that contains the symbols for debugging the CLI bits; defaults to "false" if not present. 
+| install.sh param (Linux, OSX) 	| install.ps1 param (Windows) 	| Defaults     	| Description                                                                                                                 	|
+|-------------------------------	|-----------------------------	|--------------	|-----------------------------------------------------------------------------------------------------------------------------	|
+| --channel                     	| -Channel                    	| "Production" 	| Which channel (i.e. "nightly", "preview", "production") to install from.                                                    	|
+| --version                     	| -Version                    	| Latest       	| Which version of CLI to install; you need to specify the version as 3-part version (i.e. 1.0.0-13232)                       	|
+| --prefix                      	| -InstallDir                 	| ./dotnet     	| Path to where to install the CLI bundle. The directory is not created if it doesn't exist.                                  	|
+| --debug                       	| -Debug                      	| false        	| Whether to use the "fat" packages that contain debugging symbols or not.                                                    	|
+| --no-path                     	| -NoPath                     	| false        	| Export the prefix/installdir to the path for the current session. This makes CLI tools available immidiately after install. 	|
 
 #### Install the latest nightly CLI
 
@@ -178,7 +168,7 @@ OSX/Linux:
 ./install.sh --channel nightly
 ```
 
-#### Install the latest preview to specifid location
+#### Install the latest preview to specified location
 
 Windows:
 ```
@@ -200,46 +190,6 @@ OSX/Linux:
 ```
 curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/install.sh | bash /dev/stdin [args] 
 ```
-
-## Completely manual installation
-Same bits as the previous install way, just that instead of the script, the user downloads the zip/tarball manually and then points the path and whatnot. 
-
-This install covers the following scenarios: 
-
-* Local installation 
-
-The scenarios are completely the same as with the install script.  
-
-### Installation example for manual installation
-
-This example is using OS X. Windows and Linux are similar, the commands may be different but the flow is the same. 
-
-1. Download the tarball from a stable location
-
-```console
-curl -so cli_tarball.tar.gz https://url.org/to/cli/tarball
-```
-
-2. Extract into the needed location
-
-```console
-tar -xf cli_tarball.tar.gz
-```
-
-3. Run the tools
-```console
-./bin/dotnet build
-```
-
-4. At this point, the local installation is complete. The tools can be ran from the directory where they are extracted. 
-
-5. Point the system-wide path to extracted package
-
-```console
-export PATH=$PATH:/path/to/dotnet:/path/to/dotnet/bin
-```
-
-6. At this point, the global install is done. You can access that version of CLI tools from any place in the shell. 
 
 ## Docker 
 [Docker](https://docs.docker.com/) has become a pretty good way to use developer tools, from trying them out in an interactive image use to using it for deployment. We have Docker images on DockerHub already. 
