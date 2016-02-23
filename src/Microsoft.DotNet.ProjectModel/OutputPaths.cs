@@ -33,8 +33,8 @@ namespace Microsoft.DotNet.ProjectModel
             {
                 if (_runtimePath == null)
                 {
-                    throw new InvalidOperationException(
-                        $"Cannot get runtime output path for {nameof(OutputPaths)} with no runtime set");
+                    // HACKHACKHACKHACKHACKHACK(anurse)
+                    return CompilationOutputPath;
                 }
                 return _runtimePath;
             }

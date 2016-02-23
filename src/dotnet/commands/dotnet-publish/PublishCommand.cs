@@ -154,6 +154,11 @@ namespace Microsoft.DotNet.Tools.Publish
                 {
                     PublishRefs(export, outputPath);
                 }
+
+                if (string.IsNullOrEmpty(context.RuntimeIdentifier))
+                {
+                    PublishSubtargets(export.Subtargets, outputPath);
+                }
             }
 
             var contentFiles = new ContentFiles(context);
@@ -171,6 +176,15 @@ namespace Microsoft.DotNet.Tools.Publish
             Reporter.Output.WriteLine($"Published to {outputPath}".Green().Bold());
 
             return true;
+        }
+
+        private static void PublishSubtargets(IEnumerable<LibraryExportSubtarget> subtargets, string outputPath)
+        {
+            foreach(var subtarget in subtargets)
+            {
+                PublishFiles(subtarget.RuntimeAssemblies, outputPath, nativeSubdirectories: false, preserveDirectories: true);
+                PublishFiles(subtarget.NativeLibraries, outputPath, nativeSubdirectories: false, preserveDirectories: true);
+            }
         }
 
         private static void PublishRefs(LibraryExport export, string outputPath)
@@ -227,11 +241,11 @@ namespace Microsoft.DotNet.Tools.Publish
             }
         }
 
-        private static void PublishFiles(IEnumerable<LibraryAsset> files, string outputPath, bool nativeSubdirectories)
+        private static void PublishFiles(IEnumerable<LibraryAsset> files, string outputPath, bool nativeSubdirectories, bool preserveDirectories = false)
         {
             foreach (var file in files)
             {
-                var destinationDirectory = DetermineFileDestinationDirectory(file, outputPath, nativeSubdirectories);
+                var destinationDirectory = DetermineFileDestinationDirectory(file, outputPath, nativeSubdirectories, preserveDirectories);
 
                 if (!Directory.Exists(destinationDirectory))
                 {
@@ -242,11 +256,15 @@ namespace Microsoft.DotNet.Tools.Publish
             }
         }
 
-        private static string DetermineFileDestinationDirectory(LibraryAsset file, string outputPath, bool nativeSubdirectories)
+        private static string DetermineFileDestinationDirectory(LibraryAsset file, string outputPath, bool nativeSubdirectories, bool preserveDirectories)
         {
             var destinationDirectory = outputPath;
 
-            if (nativeSubdirectories)
+            if (preserveDirectories)
+            {
+                destinationDirectory = Path.GetDirectoryName(Path.Combine(outputPath, file.RelativePath));
+            }
+            else if (nativeSubdirectories)
             {
                 destinationDirectory = Path.Combine(outputPath, GetNativeRelativeSubdirectory(file.RelativePath));
             }
@@ -276,17 +294,8 @@ namespace Microsoft.DotNet.Tools.Publish
             var allContexts = ProjectContext.CreateContextForEachTarget(projectPath);
             if (string.IsNullOrEmpty(runtime))
             {
-                // Nothing was specified, so figure out what the candidate runtime identifiers are and try each of them
-                // Temporary until #619 is resolved
-                foreach (var candidate in PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
-                {
-                    var contexts = GetMatchingProjectContexts(allContexts, framework, candidate);
-                    if (contexts.Any())
-                    {
-                        return contexts;
-                    }
-                }
-                return Enumerable.Empty<ProjectContext>();
+                // Just use the RID-less target
+                return allContexts.Where(c => c.TargetFramework == framework && string.IsNullOrEmpty(c.RuntimeIdentifier));
             }
             else
             {

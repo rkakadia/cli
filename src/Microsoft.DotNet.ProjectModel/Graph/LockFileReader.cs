@@ -166,8 +166,24 @@ namespace Microsoft.DotNet.ProjectModel.Graph
             library.CompileTimeAssemblies = ReadObject(jobject.ValueAsJsonObject("compile"), ReadFileItem);
             library.ResourceAssemblies = ReadObject(jobject.ValueAsJsonObject("resource"), ReadFileItem);
             library.NativeLibraries = ReadObject(jobject.ValueAsJsonObject("native"), ReadFileItem);
+            library.Subtargets = ReadObject(jobject.ValueAsJsonObject("subtargets"), ReadSubtarget);
 
             return library;
+        }
+
+        private static LockFileSubtarget ReadSubtarget(string property, JsonValue json)
+        {
+            var jobject = json as JsonObject;
+            if (jobject == null)
+            {
+                throw FileFormatException.Create("The value type is not an object.", json);
+            }
+
+            var library = new LockFileTargetLibrary();
+            library.RuntimeAssemblies = ReadObject(jobject.ValueAsJsonObject("runtime"), ReadFileItem);
+            library.NativeLibraries = ReadObject(jobject.ValueAsJsonObject("native"), ReadFileItem);
+
+            return new LockFileSubtarget(property, library);
         }
 
         private static ProjectFileDependencyGroup ReadProjectFileDependencyGroup(string property, JsonValue json)

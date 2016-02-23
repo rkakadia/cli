@@ -44,13 +44,16 @@ namespace Microsoft.DotNet.ProjectModel.Compilation
         /// </summary>
         public IEnumerable<AnalyzerReference> AnalyzerReferences { get; }
 
+        public IEnumerable<LibraryExportSubtarget> Subtargets { get; }
+
         public LibraryExport(LibraryDescription library,
                              IEnumerable<LibraryAsset> compileAssemblies,
                              IEnumerable<string> sourceReferences,
                              IEnumerable<LibraryAsset> runtimeAssemblies,
                              IEnumerable<LibraryAsset> runtimeAssets,
                              IEnumerable<LibraryAsset> nativeLibraries,
-                             IEnumerable<AnalyzerReference> analyzers)
+                             IEnumerable<AnalyzerReference> analyzers,
+                             IEnumerable<LibraryExportSubtarget> subtargets)
         {
             Library = library;
             CompilationAssemblies = compileAssemblies;
@@ -59,6 +62,7 @@ namespace Microsoft.DotNet.ProjectModel.Compilation
             RuntimeAssets = runtimeAssets;
             NativeLibraries = nativeLibraries;
             AnalyzerReferences = analyzers;
+            Subtargets = subtargets;
         }
 
         private string DebuggerDisplay => Library.Identity.ToString();
