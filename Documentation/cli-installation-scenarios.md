@@ -144,7 +144,7 @@ The local install can "grow up" into a global one simply by pointing the system 
 
 Acquiring the tools on the CI server would be done in the same way as on a user machine with a local install: the install script would be invoked with a given set of options and then further build scripts would actually use the tools installed in this way to do their thing (build, restore, pack/publish etc.)
 
-The guidance is, of course, to always use the beta channel for the script, and this is what the script will have as the default option. 
+The guidance is, of course, to always use the preview channel for the script, and this is what the script will have as the default option. 
 
 ### Installation script features
 The following arguments are needed for the installation script:
@@ -152,7 +152,7 @@ The following arguments are needed for the installation script:
 | install.sh param (Linux, OSX) 	| install.ps1 param (Windows) 	| Defaults     	| Description                                                                                                                 	|
 |-------------------------------	|-----------------------------	|--------------	|-----------------------------------------------------------------------------------------------------------------------------	|
 | --channel                     	| -Channel                    	| "Production" 	| Which channel (i.e. "nightly", "preview", "production") to install from.                                                    	|
-| --version                     	| -Version                    	| Latest       	| Which version of CLI to install; you need to specify the version as 3-part version (i.e. 1.0.0-13232)                       	|
+| --version                     	| -Version                    	| Latest       	| Which version of CLI to install; you need to specify the version as 3-part version (i.e. 1.0.0-13232). Also it is possible to use "latest" and "lkg" to point to latest and latest known good build                       	|
 | --prefix                      	| -InstallDir                 	| ./dotnet     	| Path to where to install the CLI bundle. The directory is not created if it doesn't exist.                                  	|
 | --debug                       	| -Debug                      	| false        	| Whether to use the "fat" packages that contain debugging symbols or not.                                                    	|
 | --no-path                     	| -NoPath                     	| false        	| Export the prefix/installdir to the path for the current session. This makes CLI tools available immidiately after install. 	|
