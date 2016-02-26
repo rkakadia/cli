@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.DotNet.ProjectModel.Server.Tests.Helpers;
+using Microsoft.DotNet.Tools.Test.Utilities;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -84,7 +85,7 @@ namespace Microsoft.DotNet.ProjectModel.Server.Tests
             }
         }
 
-        [Theory]
+        [PlatformSkipTheory(Platform.Linux)]
         [InlineData("Project", "UnresolvedProjectSample", "EmptyLibrary", "Project")]
         [InlineData("Package", "UnresolvedPackageSample", "NoSuchPackage", null)]
         [InlineData("Package", "IncompatiblePackageSample", "Microsoft.Web.Administration", "Package")]
