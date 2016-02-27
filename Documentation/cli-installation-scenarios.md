@@ -126,7 +126,7 @@ This approach is a shell one-liner that downloads an installation script and run
 This install covers the following main scenario: 
 
 * Local installation on a dev machine
-* Acquiring tools on a CI build
+* Acquiring tools on a CI build server
 
   
 The features the script needs to support/have are:
@@ -144,51 +144,50 @@ The local install can "grow up" into a global one simply by pointing the system 
 
 Acquiring the tools on the CI server would be done in the same way as on a user machine with a local install: the install script would be invoked with a given set of options and then further build scripts would actually use the tools installed in this way to do their thing (build, restore, pack/publish etc.)
 
-The guidance is, of course, to always use the preview channel for the script, and this is what the script will have as the default option. 
+The guidance is, of course, to always use the beta channel for the script, and this is what the script will have as the default option. 
 
 ### Installation script features
 The following arguments are needed for the installation script:
 
-| install.sh param (Linux, OSX) 	| install.ps1 param (Windows) 	| Defaults     	| Description                                                                                                                 	|
-|-------------------------------	|-----------------------------	|--------------	|-----------------------------------------------------------------------------------------------------------------------------	|
-| --channel                     	| -Channel                    	| "Production" 	| Which channel (i.e. "nightly", "preview", "production") to install from.                                                    	|
-| --version                     	| -Version                    	| Latest       	| Which version of CLI to install; you need to specify the version as 3-part version (i.e. 1.0.0-13232). Also it is possible to use "latest" and "lkg" to point to latest and latest known good build                       	|
-| --prefix                      	| -InstallDir                 	| ./dotnet     	| Path to where to install the CLI bundle. The directory is not created if it doesn't exist.                                  	|
-| --debug                       	| -Debug                      	| false        	| Whether to use the "fat" packages that contain debugging symbols or not.                                                    	|
-| --no-path                     	| -NoPath                     	| false        	| Export the prefix/installdir to the path for the current session. This makes CLI tools available immidiately after install. 	|
-
+| dotnet-install.sh param (Linux, OSX) 	| dotnet-install.ps1 param (Windows) 	| Defaults              	| Description                                                                                                                                                                                                                                    	|
+|--------------------------------------	|------------------------------------	|-----------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| --channel                            	| -Channel                           	| "Production"          	| Which channel (i.e. "nightly", "preview", "production") to install from.                                                                                                                                                                       	|
+| --version                            	| -Version                           	| global.json or Latest 	| Which version of CLI to install; you need to specify the version as 3-part version (i.e. 1.0.0-13232). If omitted, it will default to the first global.json that contains the sdkVersion property; if that is not present it will use Latest.  	|
+| --prefix                             	| -InstallDir                        	| .dotnet               	| Path to where to install the CLI bundle. The directory is created if it doesn't exist. On Linux/OSX this directory is created in the user home directory (`$HOME`). On Windows, this directory is created in `%LocalAppData%`.                 	|
+| --debug                              	| -Debug                             	| false                 	| Whether to use the "fat" packages that contain debugging symbols or not.                                                                                                                                                                       	|
+| --no-path                            	| -NoPath                            	| false                 	| Export the prefix/installdir to the path for the current session. This makes CLI tools available immidiately after install.                                                                                                                    	|
 #### Install the latest nightly CLI
 
 Windows:
 ```
-./install.ps1 -Channel nightly
+./dotnet-install.ps1 -Channel nightly
 ```
 OSX/Linux:
 ```
-./install.sh --channel nightly
+./dotnet-install.sh --channel nightly
 ```
 
 #### Install the latest preview to specified location
 
 Windows:
 ```
-./install.ps1 -Channel preview -InstallDir C:\cli
+./dotnet-install.ps1 -Channel preview -InstallDir C:\cli
 ```
 OSX/Linux:
 ```
-./install.sh --channel preview --prefix ~/cli
+./dotnet-install.sh --channel preview --prefix ~/cli
 ```
 
 ### Windows obtain one-liner example 
 
 ```
-@powershell -NoProfile -ExecutionPolicy unrestricted -Command "&{iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/install.ps1'))}"
+@powershell -NoProfile -ExecutionPolicy unrestricted -Command "&{iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.ps1'))}"
 ```
 
 ### OSX/Linux obtain one-liner example
 
 ```
-curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/install.sh | bash /dev/stdin [args] 
+curl -sSL https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.sh | bash /dev/stdin [args] 
 ```
 
 ## Docker 
@@ -212,5 +211,3 @@ Cross-platform IDEs/editors will work in similar way as above. The notification 
 
 ### Visual Studio 
 Visual Studio will not be shipping CLI in-box. However, it will use CLI when installed. The install will be tied into other installs like WET and similar.  The URL that is baked in VS should be an aka.ms URL because it needs to be stable on that end. The other, pointing end, should also be a stable URL/location. 
-
-
